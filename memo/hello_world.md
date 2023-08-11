@@ -1,0 +1,4 @@
+cpuの機能リッチやなー
+
+SBIを用いることで, sbi_callの引数で指定した処理を実現できる.
+これをもとにprintfをsbi_callのwrapper的に実装する.
