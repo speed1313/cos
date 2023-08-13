@@ -13,6 +13,7 @@ typedef uint32_t vaddr_t; // virtual address
 #define true 1
 #define false 0
 #define NULL ((void *)0)
+#define PAGE_SIZE 4096
 // align_up and is_aligned is used for memory alignment
 #define align_up(value, align) __builtin_align_up(value, align) // Round up value to a multiple of ALIGN
 #define is_aligned(value, align) __builtin_is_aligned(value, align) // check if the value is a multiple of ALIGN
