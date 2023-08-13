@@ -5,7 +5,7 @@ set -xue
 QEMU=qemu-system-riscv32
 
 # clang's file path
-CC=/usr/local/opt/llvm/bin/clang
+CC=/opt/homebrew/opt/llvm/bin/clang
 
 CFLAGS="-std=c11 -O2 -g3 -Wall -Wextra --target=riscv32 -ffreestanding -nostdlib"
 

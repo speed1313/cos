@@ -2,7 +2,20 @@
 
 #include "common.h"
 
-struct trap_frame {
+#define PROCS_MAX 8 // 最大プロセス数
+#define PROC_UNUSED 0 // 未使用のプロセス管理構造体(PCB)
+#define PROC_RUNNABLE 1 // 実行可能なプロセス
+
+struct process {
+    int pid; // プロセスID
+    int state; // プロセスの状態
+    vaddr_t sp; // コンテキストスイッチ時のスタックポインタ
+    vaddr_t stack[8192]; // カーネルスタック(cpu registers, caller's address, etc)
+};
+
+
+struct trap_frame
+{
     uint32_t ra;
     uint32_t gp;
     uint32_t tp;
@@ -41,6 +54,8 @@ struct sbiret
     long error;
     long value;
 };
+
+
 
 #define PANIC(fmt, ...)                                                       \
     do                                                                        \
