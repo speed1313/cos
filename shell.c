@@ -32,8 +32,9 @@ prompt:
             writefile("hello.txt", "Hello World from file!\n", 19);
         }else if (strcmp(cmdline, "ls") == 0) {
             ls();
-        }
-        else
+        }else if (strcmp(cmdline, "ps") == 0) {
+            ps();
+        }else
         {
             printf("Unknown command: %s\n", cmdline);
         }

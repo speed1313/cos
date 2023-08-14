@@ -610,6 +610,24 @@ void handle_syscall(struct trap_frame *f){
                 printf("%s\n", file->name);
             }
             break;
+        case SYS_PS:
+            for (int i = 0; i < PROCS_MAX; i++){
+                struct process *proc = &procs[i];
+                printf("pid=%d ", proc->pid);
+                if(proc->state == PROC_UNUSED){
+                    printf("unused\n");
+                }else if(proc->state == PROC_RUNNABLE){
+                    printf("runnable\n");
+                }else if(proc->state == PROC_EXITED){
+                    printf("exited\n");
+                }else{
+                    printf("unknown\n");
+                }
+
+
+            }
+            break;
+
         default:
             PANIC("unexpected syscall a3=%x\n", f->a3);
     }

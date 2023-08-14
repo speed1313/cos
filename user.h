@@ -9,3 +9,4 @@ int getchar(void);
 int readfile(const char *filename, char *buf, int size);
 int writefile(const char *filename, char *buf, int size);
 void ls(void);
+void ps(void);
