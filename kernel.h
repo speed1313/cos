@@ -6,10 +6,20 @@
 #define PROC_UNUSED 0 // 未使用のプロセス管理構造体(PCB)
 #define PROC_RUNNABLE 1 // 実行可能なプロセス
 
+// page table configuration
+#define SATP_SV32 (1u << 31) // Enable paging in Sv32 mode
+#define PAGE_V (1 << 0) // Valid bit
+#define PAGE_R (1 << 1) // Read bit
+#define PAGE_W (1 << 2) // Write bit
+#define PAGE_X (1 << 3) // Execute bit
+#define PAGE_U (1 << 4) // accessible from user mode
+
+
 struct process {
     int pid; // プロセスID
     int state; // プロセスの状態
     vaddr_t sp; // コンテキストスイッチ時のスタックポインタ
+    uint32_t *page_table; // pointer to page table 1
     vaddr_t stack[8192]; // カーネルスタック(cpu registers, caller's address, etc)
 };
 
