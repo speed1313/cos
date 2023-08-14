@@ -447,6 +447,7 @@ struct process *create_process(const void *image, size_t image_size) {
     proc->state = PROC_RUNNABLE;
     proc->sp = (uint32_t) sp;
     proc->page_table = page_table;
+    printf("created process pid=%d\n", proc->pid);
     return proc;
 }
 
@@ -568,7 +569,7 @@ void handle_syscall(struct trap_frame *f){
                     break;
                 }
 
-                yield();
+                //yield();
             }
             break;
         case SYS_EXIT:
@@ -602,11 +603,11 @@ void handle_syscall(struct trap_frame *f){
             break;
         }
         case SYS_LISTFILE:
-            for (int i = 0; i < FILES_MAX; i++) {
+            for(int i = 0; i < FILES_MAX; i++){
                 struct file *file = &files[i];
                 if (!file->in_use)
                     continue;
-                printf("%s %d\n", file->name, file->size);
+                printf("%s\n", file->name);
             }
             break;
         default:
@@ -659,43 +660,25 @@ void proc_b_entry(void) {
 
 void kernel_main(void){
     memset(__bss, 0, (size_t) __bss_end - (size_t) __bss);
-    printf("\n\nHello %s\n", "World! from cos.");
-    printf("1 + 2 = %d, %x\n", 1 + 2, 0x1234abcd);
-
     printf("\n\n");
 
+    // register trap handler
     WRITE_CSR(stvec, (uint32_t)kernel_entry);
+
+    // prepare file system
     virtio_blk_init();
     fs_init();
 
-    char buf[SECTOR_SIZE];
-    read_write_disk(buf, 0, false);
-    printf("first sector: %s\n", buf);
-
-    strcpy(buf, "Hello from kernel!");
-    read_write_disk(buf, 0, true);
-
     idle_proc = create_process(NULL, 0);
-    printf("idle_proc->id=%d\n", idle_proc->pid);
     idle_proc->pid = -1;
     current_proc = idle_proc;
+    printf("hello world\n");
 
-    create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
+    proc_a =  create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
+    proc_b =  create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
 
     yield();
     PANIC("switched to idle process");
-
-    paddr_t paddr0 = alloc_pages(2);
-    paddr_t paddr1 = alloc_pages(1);
-    printf("alloc_pages test: paddr0=%x\n", paddr0);
-    printf("alloc_pages test: paddr1=%x\n", paddr1);
-
-    while(1){
-        paddr_t paddr = alloc_pages(1000);
-        printf("alloc_pages test: paddr=%x\n", paddr);
-    }
-    PANIC("booted!");
-    WRITE_CSR(stvec, (uint32_t)kernel_entry);
     __asm__ __volatile__("unimp"); // invalid instruction to trigger an exception
 }
 
