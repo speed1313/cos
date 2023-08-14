@@ -9,7 +9,9 @@ cos is a toy operating system in C Language  with reference to https://operating
 - [x] System Call
 - [x] Disk IO
 - [x] Memory Allocator
-- [ ] 
+- [x] shell command
+  - [x] ls
+  - [x] ps
 
 # How To Use
 
@@ -19,15 +21,7 @@ $ ./run.sh
 ...
 ...
 
-virtio-blk: capacity is 3072 bytes
-virtio: tried to read/write sector=6, but capacity is 6
-virtio: tried to read/write sector=7, but capacity is 6
-file: hello.txt, size=6
-file: meow.txt, size=5
-created process pid=1
-hello world
-created process pid=2
-created process pid=3
+
 > ls
 hello.txt
 meow.txt
@@ -69,4 +63,4 @@ PANIC: kernel.c:699: switched to idle process
 
 
 # Reference
-https://operating-system-in-1000-lines.vercel.app
+- https://operating-system-in-1000-lines.vercel.app

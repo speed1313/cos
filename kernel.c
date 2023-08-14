@@ -273,6 +273,7 @@ void fs_flush(void)
 __attribute__((naked)) void switch_context(uint32_t *prev_sp, uint32_t *next_sp)
 {
     __asm__ __volatile__(
+        
         "addi sp, sp, -13 * 4\n"
         "sw ra, 0 * 4(sp)\n"
         "sw s0, 1 * 4(sp)\n"
@@ -334,7 +335,7 @@ void yield(void)
         : [satp] "r" (SATP_SV32 | ((uint32_t) next->page_table / PAGE_SIZE)),
           [sscratch] "r" ((uint32_t) &next->stack[sizeof(next->stack)])
     );
-
+    printf("sscratch %x, sp %x\n", READ_CSR(sscratch), next->sp);
 
     // context switch
     struct process *prev = current_proc;
@@ -466,6 +467,7 @@ long getchar(void)
 __attribute__((naked))
 __attribute__((aligned(4)))
 void kernel_entry(void){
+
     __asm__ __volatile__(
         "csrrw sp, sscratch, sp\n"
 
