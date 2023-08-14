@@ -10,7 +10,7 @@ void putchar(char c) {
     // TODO: implement this function
 }
 
-__attribute__((setion(".text.start")))
+__attribute__((section(".text.start")))
 __attribute__((naked))
 void start(void) {
     __asm__ __volatile__(
