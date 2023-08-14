@@ -26,6 +26,9 @@ typedef uint32_t vaddr_t; // virtual address
 #define SYS_PUTCHAR 1
 #define SYS_GETCHAR 2
 #define SYS_EXIT 3
+#define SYS_READFILE 4
+#define SYS_WRITEFILE 5
+#define SYS_LISTFILE 6
 
 void *memset(void *buf, char c, size_t n);
 void *memcpy(void *dst, const void *src, size_t n);

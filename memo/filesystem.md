@@ -1,0 +1,2 @@
+sum bitでS-modeからU-modeにアクセスできる.
+

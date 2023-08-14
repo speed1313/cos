@@ -20,10 +20,12 @@ $OBJCOPY -Ibinary -Oelf32-littleriscv shell.bin shell.bin.o
 $CC $CFLAGS -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf \
     kernel.c common.c shell.bin.o
 
+tar cf disk.tar --format=ustar --strip-components=1 disk
+
 # run QEMU
 $QEMU -machine virt -bios default -nographic -serial mon:stdio --no-reboot \
     -d unimp,guest_errors,int,cpu_reset -D qemu.log \
-    -drive id=drive0,file=lorem.txt,format=raw \
+    -drive id=drive0,file=disk.tar,format=raw \
     -device virtio-blk-device,drive=drive0,bus=virtio-mmio-bus.0 \
     -kernel kernel.elf
 
