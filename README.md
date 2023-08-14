@@ -16,7 +16,6 @@ cos is a toy operating system in C Language  with reference to https://operating
 # How To Use
 
 ```
-./run.sh
 $ ./run.sh
 ...
 ...
