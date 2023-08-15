@@ -31,6 +31,7 @@ typedef uint32_t vaddr_t; // virtual address
 #define SYS_LISTFILE 6
 #define SYS_PS 7
 #define SYS_BITMAP 8
+#define SYS_INIT 9
 
 void *memset(void *buf, char c, size_t n);
 void *memcpy(void *dst, const void *src, size_t n);

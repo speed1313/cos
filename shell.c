@@ -36,6 +36,8 @@ prompt:
             ps();
         }else if (strcmp(cmdline, "bitmap") == 0) {
             bitmap();
+        }else if (strcmp(cmdline, "init") == 0) {
+            init();
         }else
         {
             printf("Unknown command: %s\n", cmdline);

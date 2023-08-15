@@ -33,23 +33,23 @@ $ ./run.sh
 ...
 ...
 
-created process pid=1
+ccreated process pid=1
 pid=1 use 19 pages
 hello world
 created process pid=2
 pid=2 use 37 pages
+> ps
+pid=-1 runnable
+pid=2 runnable
+pid=0 unused
+pid=0 unused
+pid=0 unused
+pid=0 unused
+pid=0 unused
+pid=0 unused
+> init
 created process pid=3
 pid=3 use 37 pages
-> bitmap
-11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000 current page use 96/128 (pages)
-> exit
-process 2 exited
-used_page_count 59
-> bitmap
-11111111111111111111110000000000000000000000000000000000000111111111111111111111111111111111111100000000000000000000000000000000 current page use 59/128 (pages)
-> ls
-hello.txt
-meow.txt
 > ps
 pid=-1 runnable
 pid=2 runnable
@@ -61,17 +61,36 @@ pid=0 unused
 pid=0 unused
 > exit
 process 2 exited
+used_page_count 59
 > ps
 pid=-1 runnable
-pid=2 exited
+pid=2 unused
 pid=3 runnable
 pid=0 unused
 pid=0 unused
 pid=0 unused
 pid=0 unused
 pid=0 unused
-> hlel
-Unknown command: hlel
+> init
+created process pid=2
+pid=2 use 37 pages
+> ps
+pid=-1 runnable
+pid=2 runnable
+pid=3 runnable
+pid=0 unused
+pid=0 unused
+pid=0 unused
+pid=0 unused
+pid=0 unused
+> init
+created process pid=4
+pid=4 use 37 pages
+> bitmap
+11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 current page use 133/512 (pages)
+> ls
+hello.txt
+meow.txt
 > hello
 Hello World from shell!
 > readfile
@@ -81,9 +100,6 @@ hello
 virtio: tried to read/write sector=6, but capacity is 6
 virtio: tried to read/write sector=7, but capacity is 6
 wrote 4096 bytes to disk
-> exit
-process 3 exited
-PANIC: kernel.c:699: switched to idle process
 ```
 
 

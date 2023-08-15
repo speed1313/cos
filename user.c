@@ -45,6 +45,10 @@ void bitmap(void) {
     syscall(SYS_BITMAP, 0, 0, 0);
 }
 
+void init(void) {
+    syscall(SYS_INIT, 0, 0, 0);
+}
+
 __attribute__((noreturn)) void exit(void) {
     syscall(SYS_EXIT, 0, 0, 0);
     for (;;);

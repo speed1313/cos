@@ -20,7 +20,7 @@ uint8_t disk[DISK_MAX_SIZE];
 // heap memory bit table
 // uint8_t heap[(64 * 1024 * 1024)/ PAGE_SIZE] = {0};
 
-uint8_t heap[( 128 * 4 * 1024) / PAGE_SIZE] = {0};
+uint8_t heap[(512 * 4 * 1024) / PAGE_SIZE] = {0};
 
 /*
 paddr_t alloc_pages(uint32_t n)
@@ -746,6 +746,9 @@ void handle_syscall(struct trap_frame *f){
             }
             printf(" current page use %d/%d (pages)\n", sizeof(heap) - remain_heap(), sizeof(heap));
             break;
+        case SYS_INIT:
+            create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
+            break;
         default:
             PANIC("unexpected syscall a3=%x\n", f->a3);
     }
@@ -789,7 +792,6 @@ void kernel_main(void){
     for (;;)
     {
         proc_a = create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
-        proc_b = create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
         yield();
     }
 

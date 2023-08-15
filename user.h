@@ -11,3 +11,4 @@ int writefile(const char *filename, char *buf, int size);
 void ls(void);
 void ps(void);
 void bitmap(void);
+void init(void);
