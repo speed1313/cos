@@ -12,6 +12,7 @@ cos is a toy operating system in C Language  with reference to https://operating
 - [x] File System
   - [ ] more rich one
 - [x] System Call
+  - [ ] fork()(Let's see xv6)
 - [x] Disk IO
 - [x] Memory Allocator
   - [x] bit map allocator
@@ -37,7 +38,15 @@ pid=1 use 19 pages
 hello world
 created process pid=2
 pid=2 use 37 pages
-current page use 56/128 (pages)
+created process pid=3
+pid=3 use 37 pages
+> bitmap
+11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000 current page use 96/128 (pages)
+> exit
+process 2 exited
+used_page_count 59
+> bitmap
+11111111111111111111110000000000000000000000000000000000000111111111111111111111111111111111111100000000000000000000000000000000 current page use 59/128 (pages)
 > ls
 hello.txt
 meow.txt
@@ -79,4 +88,8 @@ PANIC: kernel.c:699: switched to idle process
 
 
 # Reference
+## Operating System in 1000 lines
 - https://operating-system-in-1000-lines.vercel.app
+## xv6 related
+- https://www.sugawara-lab.jp/lecture.html
+- https://github.com/mit-pdos/xv6-riscv

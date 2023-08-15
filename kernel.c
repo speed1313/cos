@@ -736,6 +736,16 @@ void handle_syscall(struct trap_frame *f){
                 }
             }
             break;
+        case SYS_BITMAP:
+            for(int i = 0; i < sizeof(heap); i++){
+                if (heap[i] == 1){
+                    printf("1");
+                }else{
+                    printf("0");
+                }
+            }
+            printf(" current page use %d/%d (pages)\n", sizeof(heap) - remain_heap(), sizeof(heap));
+            break;
         default:
             PANIC("unexpected syscall a3=%x\n", f->a3);
     }
@@ -779,12 +789,12 @@ void kernel_main(void){
     for (;;)
     {
         proc_a = create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
-        printf("current page use %d/%d (pages)\n", sizeof(heap) - remain_heap(), sizeof(heap));
+        proc_b = create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
         yield();
     }
 
     proc_a =  create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
-    proc_b =  create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
+
     proc_c = create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
 
     yield();
