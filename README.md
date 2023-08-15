@@ -20,7 +20,8 @@ cos is a toy operating system in C Language  with reference to https://operating
 - [x] shell command
   - [x] ls
   - [x] ps
-  - [ ] init(init new process)
+  - [x] init(init new process)
+  - [x] bitmap(show heap memory usage)
 - [ ] TCP/IP protocol stack
 - [ ] interrupt processing
 - [ ] multi processor support
