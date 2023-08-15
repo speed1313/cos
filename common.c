@@ -29,6 +29,12 @@ void printf(const char *fmt, ...)
                 }
                 break;
             }
+            case 'c':
+            {
+                char c = va_arg(vargs, int);
+                putchar(c);
+                break;
+            }
             case 'd':
             {
                 int value = va_arg(vargs, int);

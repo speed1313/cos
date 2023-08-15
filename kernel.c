@@ -737,13 +737,24 @@ void handle_syscall(struct trap_frame *f){
             }
             break;
         case SYS_BITMAP:
-            for(int i = 0; i < sizeof(heap); i++){
-                if (heap[i] == 1){
-                    printf("1");
-                }else{
-                    printf("0");
+            // output in hex by 4 bit
+            printf("0x");
+            for (int i = 0; i < sizeof(heap); i++)
+            {
+                int bit = 0;
+                for (int j = 0; j < 4; j++){
+                    bit += heap[i + j] << (3 - j);
                 }
+                // output 4 bit to hex
+                if (bit < 10){
+                    printf("%d", bit);
+                }else{
+                    char c = 'a' + (bit - 10);
+                    printf("%c", c);
+                }
+                i += 3;
             }
+
             printf(" current page use %d/%d (pages)\n", sizeof(heap) - remain_heap(), sizeof(heap));
             break;
         case SYS_INIT:
