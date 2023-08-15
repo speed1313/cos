@@ -3,10 +3,14 @@ cos is a toy operating system in C Language  with reference to https://operating
 
 # Features
 - [x] Virtual Memory(paging)
+  - Sv32 Two-Level Address Translation
 - [x] Multitasking
-  - [ ] round robin scheduler
-- [x] Exception
+  - for now, it is not preemptive multitasking
+  - [ ] round robin scheduler?
+- [x] Exception Handling
+  - system call, page fault and so on
 - [x] File System
+  - [ ] more rich one
 - [x] System Call
 - [x] Disk IO
 - [x] Memory Allocator
@@ -15,8 +19,12 @@ cos is a toy operating system in C Language  with reference to https://operating
 - [x] shell command
   - [x] ls
   - [x] ps
-  - [x] init(init new process)
-
+  - [ ] init(init new process)
+- [ ] TCP/IP protocol stack
+- [ ] interrupt processing
+- [ ] multi processor support
+- [ ] inter process communication
+- [ ] timer processing
 # How To Use
 
 ```
