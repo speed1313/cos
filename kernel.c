@@ -17,6 +17,12 @@ struct process *idle_proc;
 struct file files[FILES_MAX];
 uint8_t disk[DISK_MAX_SIZE];
 
+// heap memory bit table
+// uint8_t heap[(64 * 1024 * 1024)/ PAGE_SIZE] = {0};
+
+uint8_t heap[( 128 * 4 * 1024) / PAGE_SIZE] = {0};
+
+/*
 paddr_t alloc_pages(uint32_t n)
 {
     static paddr_t next_paddr = (paddr_t)__free_ram;
@@ -28,6 +34,34 @@ paddr_t alloc_pages(uint32_t n)
     }
     memset((void *)paddr, 0, n * PAGE_SIZE);
     return paddr;
+}
+*/
+
+paddr_t alloc_pages(uint32_t n){
+    for (int i = 0; i < sizeof(heap); i++)
+    {
+        // check continuous free pages
+        int j;
+        for (j = 0; j < n; j++){
+            if (i+j >= sizeof(heap)){
+                PANIC("out of memory");
+            }
+            if (heap[i + j] != 0){
+                break;
+            }
+        }
+        if (j == n){
+            // found
+            for (int k = 0; k < n; k++){
+                //printf("alloc page %x\n", (paddr_t)__free_ram + i * PAGE_SIZE);
+                heap[i + k] = 1;
+            }
+            paddr_t paddr = (paddr_t)__free_ram + i * PAGE_SIZE;
+            memset((void *)paddr, 0, n * PAGE_SIZE);
+            return paddr;
+        }
+    }
+    PANIC("out of memory");
 }
 
 uint8_t virtio_reg_read8(unsigned offset)
@@ -273,7 +307,7 @@ void fs_flush(void)
 __attribute__((naked)) void switch_context(uint32_t *prev_sp, uint32_t *next_sp)
 {
     __asm__ __volatile__(
-        
+
         "addi sp, sp, -13 * 4\n"
         "sw ra, 0 * 4(sp)\n"
         "sw s0, 1 * 4(sp)\n"
@@ -335,7 +369,6 @@ void yield(void)
         : [satp] "r" (SATP_SV32 | ((uint32_t) next->page_table / PAGE_SIZE)),
           [sscratch] "r" ((uint32_t) &next->stack[sizeof(next->stack)])
     );
-    printf("sscratch %x, sp %x\n", READ_CSR(sscratch), next->sp);
 
     // context switch
     struct process *prev = current_proc;
@@ -373,6 +406,9 @@ void map_page(uint32_t *table1, uint32_t vaddr, paddr_t paddr, uint32_t flags)
     {
         // allocate a page table 2
         uint32_t pt_paddr = alloc_pages(1);
+
+        //printf("alloc page table 2: pt_addr:%x vaddr:%x paddr:%x\n", pt_paddr, vaddr, paddr);
+
         // divide by PAGE_SIZE to get the pyhsical page number
         table1[vpn1] = ((pt_paddr / PAGE_SIZE) << 10) | PAGE_V;
     }
@@ -394,6 +430,15 @@ __attribute__((naked)) void user_entry(void) {
           [sstatus] "r"(SSTATUS_SPIE | SSTATUS_SUM));
 }
 
+int remain_heap(){
+    int remain_heap = 0;
+    for(int i = 0; i < sizeof(heap); i++){
+        if (heap[i] == 0){
+            remain_heap++;
+        }
+    }
+    return remain_heap;
+}
 // image is a pointer to the beginning of the executable image.
 // image_size is the size of the image.
 struct process *create_process(const void *image, size_t image_size) {
@@ -426,14 +471,24 @@ struct process *create_process(const void *image, size_t image_size) {
     *--sp = 0; // s0
     *--sp = (uint32_t) user_entry; // ra
 
+    int n = remain_heap();
     uint32_t *page_table = (uint32_t *) alloc_pages(1);
-
     // map the kernel page
-    for (paddr_t paddr = (paddr_t) __kernel_base;  paddr < (paddr_t) __free_ram_end; paddr += PAGE_SIZE) {
+
+    for (paddr_t paddr = (paddr_t)__kernel_base; paddr < (paddr_t)__free_ram_end; paddr += PAGE_SIZE)
+    {
         map_page(page_table, paddr, paddr, PAGE_R | PAGE_W| PAGE_X);
     }
+    /*
+    printf("kernel use %d pages\n", n - remain_heap());
+    n = remain_heap();
+    */
 
     map_page(page_table, VIRTIO_BLK_PADDR, VIRTIO_BLK_PADDR, PAGE_R | PAGE_W);
+    /*
+    printf("virtio use %d pages\n", n - remain_heap());
+    n = remain_heap();
+    */
 
     // map the user page
     for (uint32_t off = 0; off < image_size; off += PAGE_SIZE) {
@@ -441,7 +496,9 @@ struct process *create_process(const void *image, size_t image_size) {
         // copy a page to protect the original image from other processes
         memcpy((void *) page, image + off, PAGE_SIZE);
         map_page(page_table, USER_BASE + off, page, PAGE_U | PAGE_R | PAGE_W | PAGE_X);
+        // printf("user vaddr %x\n", USER_BASE + off);
     }
+
 
     // initialize each field of proc
     proc->pid = i + 1;
@@ -449,6 +506,7 @@ struct process *create_process(const void *image, size_t image_size) {
     proc->sp = (uint32_t) sp;
     proc->page_table = page_table;
     printf("created process pid=%d\n", proc->pid);
+    printf("pid=%d use %d pages\n", proc->pid, n - remain_heap());
     return proc;
 }
 
@@ -558,6 +616,45 @@ struct file *fs_lookup(const char *filename)
     return NULL;
 }
 
+void free_pages(uint32_t *table)
+{
+    int freed_count = 0;
+    for (uint32_t i = 0; i < 1024; i++)
+    {
+        if ((table[i] & PAGE_V) == 0)
+            continue;
+
+        uint32_t *table2 = (uint32_t *)((table[i] >> 10) * PAGE_SIZE); // this page will be freed
+        if(heap[((paddr_t)table2 - (paddr_t)__free_ram) / PAGE_SIZE] == 0){
+            continue;
+        }
+        // physical page free step
+        for (uint32_t j = 0; j < 1024; j++){
+            if((table2[j] & PAGE_V) == 0)
+                continue;
+            uint32_t paddr = (table2[j] >> 10) * PAGE_SIZE;
+            if(heap[((paddr_t)paddr - (paddr_t)__free_ram) / PAGE_SIZE] == 0){
+                continue;
+            }
+            // page_U check
+            if((table2[j] & PAGE_U) == 0){
+                continue;
+            }
+            heap[((paddr_t)paddr - (paddr_t)__free_ram) / PAGE_SIZE] = 0;
+            freed_count++;
+            memset((void *)paddr, 0, PAGE_SIZE);
+        }
+        heap[((paddr_t)table2 - (paddr_t)__free_ram) / PAGE_SIZE] = 0;
+        freed_count++;
+        uint32_t *paddr = table2;
+        // memset(paddr, 0, PAGE_SIZE);
+    }
+    heap[((paddr_t)table - (paddr_t)__free_ram) / PAGE_SIZE] = 0;
+    // memset(table, 0, PAGE_SIZE);
+    freed_count++;
+    // printf("freed page count %d\n", freed_count);
+}
+
 void handle_syscall(struct trap_frame *f){
     switch  (f->a3) {
         case SYS_PUTCHAR:
@@ -576,7 +673,19 @@ void handle_syscall(struct trap_frame *f){
             break;
         case SYS_EXIT:
             printf("process %d exited\n", current_proc->pid);
-            current_proc->state = PROC_EXITED;
+            current_proc->state = PROC_UNUSED;
+            // free the page table
+            free_pages(current_proc->page_table);
+            //printf("free_pages %x\n", (paddr_t) current_proc->page_table);
+            int used_page_count = 0;
+            for (int i = 0; i < sizeof(heap); i++)
+            {
+                if (heap[i] == 1)
+                {
+                    used_page_count++;
+                }
+            }
+            printf("used_page_count %d\n", used_page_count);
             yield();
             PANIC("unreachable");
         case SYS_READFILE:
@@ -625,11 +734,8 @@ void handle_syscall(struct trap_frame *f){
                 }else{
                     printf("unknown\n");
                 }
-
-
             }
             break;
-
         default:
             PANIC("unexpected syscall a3=%x\n", f->a3);
     }
@@ -651,32 +757,7 @@ void handle_trap(struct trap_frame *f){
 
 struct process *proc_a;
 struct process *proc_b;
-
-void proc_a_entry(void) {
-    printf("starting process A\n");
-    while(1){
-        putchar('A');
-        yield();
-        for (int i = 0; i < 30000000; i++){
-            __asm__ __volatile__("nop");
-        }
-    }
-}
-
-void proc_b_entry(void) {
-    printf("starting process B\n");
-    while(1){
-        putchar('B');
-        yield();
-        for (int i = 0; i < 30000000; i++){
-            __asm__ __volatile__("nop");
-        }
-    }
-}
-
-
-
-
+struct process *proc_c;
 
 void kernel_main(void){
     memset(__bss, 0, (size_t) __bss_end - (size_t) __bss);
@@ -684,6 +765,8 @@ void kernel_main(void){
 
     // register trap handler
     WRITE_CSR(stvec, (uint32_t)kernel_entry);
+
+
 
     // prepare file system
     virtio_blk_init();
@@ -693,9 +776,16 @@ void kernel_main(void){
     idle_proc->pid = -1;
     current_proc = idle_proc;
     printf("hello world\n");
+    for (;;)
+    {
+        proc_a = create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
+        printf("current page use %d/%d (pages)\n", sizeof(heap) - remain_heap(), sizeof(heap));
+        yield();
+    }
 
     proc_a =  create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
     proc_b =  create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
+    proc_c = create_process(_binary_shell_bin_start, (size_t)_binary_shell_bin_size);
 
     yield();
     PANIC("switched to idle process");

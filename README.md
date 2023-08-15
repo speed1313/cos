@@ -4,14 +4,18 @@ cos is a toy operating system in C Language  with reference to https://operating
 # Features
 - [x] Virtual Memory(paging)
 - [x] Multitasking
+  - [ ] round robin scheduler
 - [x] Exception
 - [x] File System
 - [x] System Call
 - [x] Disk IO
 - [x] Memory Allocator
+  - [x] bit map allocator
+    - if a process exits, the memory it used will be freed.
 - [x] shell command
   - [x] ls
   - [x] ps
+  - [x] init(init new process)
 
 # How To Use
 
@@ -20,7 +24,12 @@ $ ./run.sh
 ...
 ...
 
-
+created process pid=1
+pid=1 use 19 pages
+hello world
+created process pid=2
+pid=2 use 37 pages
+current page use 56/128 (pages)
 > ls
 hello.txt
 meow.txt
