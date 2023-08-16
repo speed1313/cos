@@ -34,10 +34,10 @@ $ ./run.sh
 ...
 ...
 
-ccreated process pid=1
+ccreated process pid=1, page_table=80277000
 pid=1 use 19 pages
 hello world
-created process pid=2
+created process pid=2, page_table=8028a000
 pid=2 use 37 pages
 > ps
 pid=-1 runnable
@@ -49,7 +49,7 @@ pid=0 unused
 pid=0 unused
 pid=0 unused
 > init
-created process pid=3
+created process pid=3, page_table=802af000
 pid=3 use 37 pages
 > ps
 pid=-1 runnable
@@ -73,7 +73,7 @@ pid=0 unused
 pid=0 unused
 pid=0 unused
 > init
-created process pid=2
+created process pid=2, page_table=8028a000
 pid=2 use 37 pages
 > ps
 pid=-1 runnable
@@ -85,7 +85,7 @@ pid=0 unused
 pid=0 unused
 pid=0 unused
 > init
-created process pid=4
+created process pid=4, page_table=802d4000
 pid=4 use 37 pages
 > bitmap
 0xfffffffffffffffffffffffffffffffff80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 current page use 133/512 (pages)
@@ -102,7 +102,7 @@ virtio: tried to read/write sector=6, but capacity is 6
 virtio: tried to read/write sector=7, but capacity is 6
 wrote 4096 bytes to disk
 ```
-
+You can find that each process has its own page table.
 
 # Reference
 ## Operating System in 1000 lines
