@@ -505,7 +505,7 @@ struct process *create_process(const void *image, size_t image_size) {
     proc->state = PROC_RUNNABLE;
     proc->sp = (uint32_t) sp;
     proc->page_table = page_table;
-    printf("created process pid=%d\n", proc->pid);
+    printf("created process pid=%d, page_table=%x\n", proc->pid, proc->page_table);
     printf("pid=%d use %d pages\n", proc->pid, n - remain_heap());
     return proc;
 }
