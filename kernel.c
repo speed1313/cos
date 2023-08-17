@@ -443,7 +443,7 @@ int remain_heap(){
 // image_size is the size of the image.
 struct process *create_process(const void *image, size_t image_size) {
     // find a free process slot
-    struct process *proc = &procs[0];
+    struct process *proc = NULL;
     int i;
     for (i = 0; i < PROCS_MAX; i++) {
         if (procs[i].state == PROC_UNUSED) {
@@ -452,7 +452,7 @@ struct process *create_process(const void *image, size_t image_size) {
         }
     }
 
-    if (i == PROCS_MAX)
+    if (!proc)
         PANIC("no free process slots");
 
     // switch_context() で復帰できるように, スタックに呼び出し先保存レジスタを積む
