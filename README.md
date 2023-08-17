@@ -7,12 +7,14 @@ cos is a toy operating system in C Language  with reference to https://operating
 - [x] Multitasking
   - for now, it is not preemptive multitasking
   - [ ] round robin scheduler?
+  - [ ] priority scheduler(longer sleep time, higher priority)
 - [x] Exception Handling
   - system call, page fault and so on
 - [x] File System
   - [ ] more rich one
 - [x] System Call
   - [ ] fork()(Let's see xv6)
+  - [ ] Exec()(only predefined binary)
 - [x] Disk IO
 - [x] Memory Allocator
   - [x] bit map allocator
@@ -34,7 +36,7 @@ $ ./run.sh
 ...
 ...
 
-ccreated process pid=1, page_table=80277000
+created process pid=1, page_table=80277000
 pid=1 use 19 pages
 hello world
 created process pid=2, page_table=8028a000
@@ -110,3 +112,4 @@ You can find that each process has its own page table.
 ## xv6 related
 - https://www.sugawara-lab.jp/lecture.html
 - https://github.com/mit-pdos/xv6-riscv
+- https://pdos.csail.mit.edu/6.828/2023/

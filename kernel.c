@@ -452,7 +452,7 @@ struct process *create_process(const void *image, size_t image_size) {
         }
     }
 
-    if (!proc)
+    if (i == PROCS_MAX)
         PANIC("no free process slots");
 
     // switch_context() で復帰できるように, スタックに呼び出し先保存レジスタを積む
